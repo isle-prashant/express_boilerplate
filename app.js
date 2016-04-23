@@ -15,6 +15,8 @@ var passConfig = require('./config/passConfig.js');
 
 var app = express();
 
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -45,9 +47,10 @@ passport.deserializeUser(passConfig.deserialize);
 passport.use('login', passConfig.strategyLogin);
 passport.use('signup', passConfig.strategyRegister);
 //passport.use(passConfig.facebookStrategy);
+var io = require('socket.io')();
+app.io = io;
 
-
-app.use('/', index);
+app.use('/', require('./routes/index')(io));
 app.use('/users', users);
 app.use('/posts', posts);
 // catch 404 and forward to error handler
