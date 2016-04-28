@@ -2,10 +2,8 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 var passport = require('passport');
-
 /* GET users listing. */
-
-var sendUserData = function (res, user) {
+var sendUserData = function(res, user) {
     var ob = {};
     ob.user = {};
     ob.user.id = user._id;
@@ -13,49 +11,39 @@ var sendUserData = function (res, user) {
     ob.user.username = user.username;
     res.json(ob);
 };
-
 router.get('/', function(req, res, next) {
- User.find(function(err, users){
-     if(err){
-         return res.send(err);
-     }
-     res.send(users);
- });
-});
-
-
-router.post('/login', function (req, res) {
-    passport.authenticate('login', function (err, user) {
-        if (!user) {
-            res.json({error: err});
-        } else {
-            req.logIn(user, function (err) { // When using authenticate manually log in manually
-                return sendUserData(res, user);
-            });
-        }
-    })(req, res);
-});
-
-router.post('/signup', function (req, res, next) {
-
-    passport.authenticate('signup', function (err, user) {
+    User.find(function(err, users) {
         if (err) {
-            if ((err.message + '').indexOf('duplicate') > -1) {
-                res.json({error: 'email exists'});
-            } else {
-                res.json({error: err.message});
-            }
-            console.log(err);
-        } else {
-            sendUserData(res, user);
+            return res.send(err);
         }
+        res.send(users);
+    });
+});
+router.get('/auth/facebook', passport.authenticate('facebook'));
+/* Handle callback requests */
+router.get('/facebook/callback', function(req, res, next) {
+    console.log('Enter');
+    passport.authenticate('facebook', function(user) {
+        // Checking if user object is present
+        if (user.user) {
+            req.logIn(user.user, function(err) {});
+        }
+        res.redirect('/');
     })(req, res, next);
-
 });
-
-router.get('/logout', function (req, res) {
+/*to be removed later*/
+router.delete('/', function(req, res) {
+    User.remove({}, function(err, users) {
+        if (!users || err) {
+            return res.send(err);
+        }
+        return res.send(err);
+    });
+});
+router.get('/logout', function(req, res) {
     req.logout();
-    res.json({success: 'successfully signed out'});
+    res.json({
+        success: 'successfully signed out'
+    });
 });
-
 module.exports = router;

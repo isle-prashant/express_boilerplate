@@ -4,7 +4,7 @@
 var mongoose = require ('mongoose');
 var postSchema =  new mongoose.Schema({
     tweet: {type: String, required: [true, ' field is required']},
-    creator: {type: mongoose.Schema.ObjectId, required: true },
+    creatorId: {type: String, required: true, ref: 'User' },
     updated_at: {type: Date, default: Date.now}
 
 

@@ -8,10 +8,10 @@ var mongoose = require('mongoose');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var posts = require('./routes/posts')
+var tweets = require('./routes/tweets')
 
 var passport = require('passport');
-var passConfig = require('./config/passConfig.js');
+var passConfig = require('./passport/config.js');
 
 var app = express();
 
@@ -44,15 +44,15 @@ app.use(passport.session());
 
 passport.serializeUser(passConfig.serialize);
 passport.deserializeUser(passConfig.deserialize);
-passport.use('login', passConfig.strategyLogin);
-passport.use('signup', passConfig.strategyRegister);
+passport.use('facebook', passConfig.facebookStrategy);
 //passport.use(passConfig.facebookStrategy);
 var io = require('socket.io')();
 app.io = io;
 
-app.use('/', require('./routes/index')(io));
-app.use('/users', users);
-app.use('/posts', posts);
+app.use('/api/chats', require('./routes/chat')(io));
+app.use('/api/users', users);
+app.use('/api/tweets', require('./routes/tweets')(io));
+app.use('*', index);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
