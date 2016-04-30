@@ -50,7 +50,7 @@ module.exports = function(io) {
     router.get('/:id', ifLoggedIn, function(req, res, next) {
         Comment.find({
             tweetId: req.params.id
-        }).populate({
+        }).sort({_id:-1}).populate({
             path: 'userId',
             select: 'name id'
         }).exec(function(err, comment) {

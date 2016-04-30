@@ -17,9 +17,16 @@
                 </h2>
             </div>
             <div class="panel-body">
-                <h4>
-                    Comments
-                </h4>
+                <div class="col-md-11 col-xs-11">
+                    <div class="col-md-10 col-xs-9">
+                        <input class="form-control" type="text" ng-model="comment" my-enter="postComment()"/>
+                    </div>
+                    <div class="col-md-2 col-xs-2">
+                        <p class="btn btn-primary" ng-click="postComment()">
+                            Comment
+                        </p>
+                    </div>
+                </div>
             </div>
             <!-- List group -->
             <ul class="list-group">
@@ -30,11 +37,8 @@
                     </span>
                     <!-- Split button -->
                     <div class="btn-group pull-right"  ng-if="(comment.userId._id== user._id)||(currentTweet.creatorId._id == user._id)">
-                        
-                            <span class="caret" class=" dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ">
-                            </span>
-                            
-                        
+                        <span class="caret" class=" dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        </span>
                         <ul class="dropdown-menu">
                             <li ng-click = "deleteComment(comment._id)">
                                 <a href="#">
@@ -43,22 +47,11 @@
                             </li>
                         </ul>
                     </div>
-                  
                     <p>
                         {{ timesInWord(comment.created_at) }}
                     </p>
                 </li>
             </ul>
-        </div>
-        <div class="col-md-12">
-            <div class="col-md-10 col-xs-10">
-                <input class="form-control" type="text" ng-model="comment" my-enter="postComment()"/>
-            </div>
-            <div class="col-md-2 col-xs-2">
-                <p class="btn btn-primary" ng-click="postComment()">
-                    Comment
-                </p>
-            </div>
         </div>
     </body>
 </html>

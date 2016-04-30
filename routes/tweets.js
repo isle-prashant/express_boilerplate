@@ -28,12 +28,20 @@ module.exports = function(io) {
     };
     /*to get all the posts*/
     router.get('/', function(req, res, next) {
-        Tweet.find({}).sort({
+        var search = {};
+        if (req.query.tid) {
+            search = {
+                _id: {
+                    $lt: req.query.tid
+                }
+            }
+        }
+        Tweet.find(search).sort({
             _id: -1
         }).populate({
             path: 'creatorId',
             select: 'name id'
-        }).exec(function(err, tweets) {
+        }).limit(10).exec(function(err, tweets) {
             if (err) {
                 return next();
             }
@@ -80,11 +88,12 @@ module.exports = function(io) {
                 return next();
             }
             console.log(tweet._id);
-            Comment.findByIdAndRemove({tweetId:req.params.id}, function(err, comment) {
+            Comment.findByIdAndRemove({
+                tweetId: req.params.id
+            }, function(err, comment) {
                 if (err) {
                     return res.send(err);
                 }
-              
             });
             io.emit('tweetDeleted', tweet._id);
             res.send(tweet);

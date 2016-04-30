@@ -1,7 +1,8 @@
 /**
  * Created by PRASHANT on 10-04-2016.
  */
-var app = angular.module('myApp', ['ngResource', 'ngRoute']);
+"use strict";
+var app = angular.module('myApp', ['ngResource', 'ngRoute', 'infinite-scroll']);
 /*Factory for tweets*/
 app.factory('Tweet', function($resource) {
     return $resource('/api/tweets/:id', null, {
@@ -21,10 +22,10 @@ app.factory('Comment', function($resource) {
 /*Factory for socket*/
 app.factory('socket', function($rootScope, $http) {
     var socket = io.connect();
-    $http.get('/api/users/currentUser').then(function(response){
+    $http.get('/api/users/currentUser').then(function(response) {
         $rootScope.user = response.data;
     });
-    $rootScope.timesInWord = function(date){
+    $rootScope.timesInWord = function(date) {
         return moment(date).fromNow();
     }
     return {
@@ -95,7 +96,7 @@ app.controller('CommentController', function($routeParams, $scope, Comment, Twee
         });
     });
     socket.on('comment' + $routeParams.id, function(comment) {
-        $scope.comments.push(comment);
+        $scope.comments.unshift(comment);
     })
 });
 /*A controller for tweets*/
@@ -103,12 +104,36 @@ app.controller('TweetController', function($http, $routeParams, $scope, Tweet, s
     $scope.tweets = [];
     $scope.showEditBox = [];
     $scope.TweetObject = {};
-    $scope.tweets = Tweet.query(function() {
-        for (var i in $scope.tweets) {
-            $scope.showEditBox.push(false);
+    $scope.lastTweetId = undefined;
+    $scope.loadBool = false;
+    $scope.tweets = Tweet.query(function(tweets) {
+        for (var i in tweets) {
+            if (tweets[i]._id) {
+                $scope.showEditBox.push(false);
+                $scope.lastTweetId = tweets[tweets.length - 1]._id;
+            }
         }
+        $scope.loadBool = true;
     });
-    /*To create new tweets*/
+    $scope.loadMore = function() {
+            if (!$scope.loadBool) {
+                return;
+            }
+            $scope.loadBool = false;
+            Tweet.query({
+                tid: $scope.lastTweetId
+            }, function(tweets) {
+                for (var i in tweets) {
+                    if (tweets[i]._id) {
+                        $scope.showEditBox.push(false);
+                        $scope.lastTweetId = tweets[i]._id;
+                        $scope.tweets.push(tweets[i]);
+                    }
+                }
+                $scope.loadBool = true;
+            });
+        }
+        /*To create new tweets*/
     $scope.postTweet = function() {
         var newTweet = new Tweet();
         newTweet.tweet = $scope.tweet;
