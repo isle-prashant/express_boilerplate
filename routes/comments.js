@@ -11,7 +11,28 @@ module.exports = function(io) {
         }
         next();
     };
-    /*to check if the current user onws the post or not*/
+    var ifCombinedowns = function(req, res, next) {
+            Comment.findOne({
+                _id: req.params.id
+            }).populate({
+                path: 'tweetId',
+                select: 'creatorId'
+            }).exec(function(err, comment) {
+                if (err) {
+                    return res.send({
+                        error: err
+                    });
+                    console.log(err);
+                }
+                if ((comment.userId == req.user._id.toString()) || (comment.tweetId.creatorId == req.user._id.toString())) {
+                    return next();
+                } else {
+                    return res.send("You are not Authorised!!");
+                    console.log("You are not Authorised!!");
+                }
+            });
+        }
+        /*to check if the current user onws the post or not*/
     var ifowns = function(req, res, next) {
         Comment.findOne({
             _id: req.params.id
@@ -19,7 +40,6 @@ module.exports = function(io) {
             if (err || !comment) {
                 return res.send("error");
             }
-            console.log("UserId" + req.user._id + "creatorId", tweet.creator);
             if (comment.userId != req.user._id.toString()) {
                 return res.send("You are not Authorised!!");
             }
@@ -53,21 +73,41 @@ module.exports = function(io) {
                 res.send(err);
                 return next();
             }
-            comment.userId = req.user;
-            io.emit('comment'+comment.tweetId, comment)
-            res.send(comment);
+            Tweet.findOne({
+                _id: comment.tweetId
+            }, function(err, tweet) {
+                if (err) {
+                    return res.send(err);
+                }
+                tweet.comments.push(comment._id);
+                tweet.save(function(err, tweet) {
+                    comment.userId = req.user;
+                    io.emit('comment' + comment.tweetId, comment)
+                    res.send(comment)
+                });
+            });
         });
     });
-    /*to delete a given post by its id*/
-    router.delete('/:id', ifLoggedIn, ifowns, function(req, res, next) {
+    /*to delete a given comment by its id*/
+    router.delete('/:id', ifLoggedIn, ifCombinedowns, function(req, res, next) {
         Comment.findByIdAndRemove(req.params.id, function(err, comment) {
             if (err) {
                 return res.send(err);
             }
-            res.send(comment);
+            Tweet.findOne({
+                _id: comment.tweetId
+            }, function(err, tweet) {
+                if (err) {
+                    return res.send(err);
+                }
+                tweet.comments.pull(comment._id);
+                tweet.save(function(err, tweet) {
+                    io.emit('commentDeleted' + comment.tweetId, comment._id);
+                    res.send(comment);
+                });
+            });
         });
     });
-  
     /*To update a comment*/
     router.put('/:id', ifLoggedIn, ifowns, function(req, res, next) {
         var newComment = {};

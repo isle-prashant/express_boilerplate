@@ -19,8 +19,14 @@ app.factory('Comment', function($resource) {
     });
 });
 /*Factory for socket*/
-app.factory('socket', function($rootScope) {
+app.factory('socket', function($rootScope, $http) {
     var socket = io.connect();
+    $http.get('/api/users/currentUser').then(function(response){
+        $rootScope.user = response.data;
+    });
+    $rootScope.timesInWord = function(date){
+        return moment(date).fromNow();
+    }
     return {
         on: function(eventName, callback) {
             socket.on(eventName, function() {
@@ -68,10 +74,26 @@ app.controller('CommentController', function($routeParams, $scope, Comment, Twee
         var newComment = new Comment();
         newComment.comment = $scope.comment;
         newComment.tweetId = $routeParams.id;
-        newComment.$save(function(comment) {}, function(err) {
+        newComment.$save(function(comment) {
+            $scope.comment = ""
+        }, function(err) {
             console.log(err);
         });
     }
+    $scope.deleteComment = function(commentId) {
+        Comment.delete({
+            id: commentId
+        }, function(data) {
+            $scope.comments = $scope.comments.filter(function(item) {
+                return item._id !== commentId;
+            });
+        });
+    }
+    socket.on('commentDeleted' + $routeParams.id, function(commentId) {
+        $scope.comments = $scope.comments.filter(function(item) {
+            return item._id !== commentId;
+        });
+    });
     socket.on('comment' + $routeParams.id, function(comment) {
         $scope.comments.push(comment);
     })

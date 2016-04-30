@@ -5,7 +5,6 @@
         <title>
             Home
         </title>
-       
     </head>
     <body>
         <div class="col-md-12 main-chart">
@@ -15,7 +14,7 @@
                 </div>
                 <div class="col-md-2 col-xs-2">
                     <p class="btn btn-primary" ng-click="postTweet()">
-                        Send
+                        Tweet
                     </p>
                 </div>
             </div>
@@ -24,24 +23,35 @@
                     <div class="panel-group">
                         <div class="panel panel-default">
                             <div class="panel-heading">
+                              <div class="btn-group pull-right"  ng-if="tweet.creatorId._id== user._id">
+                                    <span class="caret" class=" dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" "> </span> <ul class="dropdown-menu"> <li ng-hide="showEditBox[$index]" ng-click="showEditBoxfunction($index)"> <a href="#"> Edit  </a> </li> <li ng-click = "deletePost(tweet._id)"> <a href="#">
+                                        Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                                <img class="img-thumbnail" src="http://graph.facebook.com/{{ tweet.creatorId.id }}/picture?type=small"/>
+                                <span class="lead text-justify"  style="margin-left: 5px;">
+                                    {{ tweet.creatorId.name }} .
+                                </span>
+                                {{ timesInWord(tweet.created_at) }}
                                 <a href="/tweet/{{ tweet._id }}" style="text-decoration: none">
-                                    <img  src="http://graph.facebook.com/{{ tweet.creatorId.id }}/picture?type=small"/>
                                     <h3 ng-hide="showEditBox[$index]">
                                         {{ tweet.tweet }}
                                     </h3>
                                 </a>
+
                             </div>
                             <div class="panel-body">
-                                <input type = "text" ng-show="showEditBox[$index]" ng-model = "tweet.tweet"/>
-                                <input type="submit" ng-show="showEditBox[$index]" value="Update" ng-click="updatePost(tweet, $index)"/>
-                                <p>
-                                    <span class="btn btn-primary" ng-hide="showEditBox[$index]" ng-click="showEditBoxfunction($index)">
-                                        Edit
-                                    </span>
-                                    <span class="btn btn-danger" ng-click = "deletePost(tweet._id)">
-                                        Delete
-                                    </span>
-                                </p>
+                                <div class="pull-left">
+                                    Comments: {{ tweet.comments.length }}
+                                </div>
+                                <div class="col-md-6 col-xs-6">
+                                    <input  class="form-control " type = "text" ng-show="showEditBox[$index]" ng-model = "tweet.tweet" my-enter="updatePost(tweet, $index)"/>
+                                </div>
+                                <span class="btn btn-primary" ng-show="showEditBox[$index]" ng-click="updatePost(tweet, $index)">
+                                    Update
+                                </span>
                             </div>
                         </div>
                     </div>

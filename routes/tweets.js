@@ -2,6 +2,7 @@ module.exports = function(io) {
     var express = require('express');
     var router = express.Router();
     var Tweet = require('../models/tweet');
+    var Comment = require('../models/comment');
     /* GET users listing. */
     var ifLoggedIn = function(req, res, next) {
         if (!req.user) {
@@ -79,6 +80,12 @@ module.exports = function(io) {
                 return next();
             }
             console.log(tweet._id);
+            Comment.findByIdAndRemove({tweetId:req.params.id}, function(err, comment) {
+                if (err) {
+                    return res.send(err);
+                }
+              
+            });
             io.emit('tweetDeleted', tweet._id);
             res.send(tweet);
         });
@@ -89,7 +96,6 @@ module.exports = function(io) {
             if (!users || err) {
                 return res.send(err);
             }
-            
             return res.send(tweet);
         });
     });

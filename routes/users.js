@@ -3,14 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var passport = require('passport');
 /* GET users listing. */
-var sendUserData = function(res, user) {
-    var ob = {};
-    ob.user = {};
-    ob.user.id = user._id;
-    ob.user.email = user.email;
-    ob.user.username = user.username;
-    res.json(ob);
-};
+
 router.get('/', function(req, res, next) {
     User.find(function(err, users) {
         if (err) {
@@ -40,6 +33,14 @@ router.delete('/', function(req, res) {
         return res.send(err);
     });
 });
+/*To get the current user*/
+router.get('/currentUser', function(req, res){
+    if(!req.user){
+        return res.send({error: "No user logged in"});
+    }
+    return res.send(req.user);
+});
+/*To logout a user*/
 router.get('/logout', function(req, res) {
     req.logout();
     res.json({
@@ -50,6 +51,19 @@ router.get('/logout', function(req, res) {
 router.get('/mylogin', function (req, res) {
     User.findOne({
         _id: '572292626d8eac97117054b9'
+    }, function (err, user) {
+        if (err || !user) {
+            return res.send('False');
+        }
+        req.logIn(user, function (err) {
+        });
+        res.json(req.user);
+    });
+});
+
+router.get('/clogin', function (req, res) {
+    User.findOne({
+        _id: '572491d2fd8b532d0f9610a8'
     }, function (err, user) {
         if (err || !user) {
             return res.send('False');

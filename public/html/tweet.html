@@ -2,30 +2,63 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8"/>
-      
     </head>
     <body>
-        Tweet
-        <p>
-            <img  src="http://graph.facebook.com/{{ currentTweet.creatorId.id }}/picture?type=small"/>
-            <label>
-                {{ currentTweet.tweet }}
-            </label>
-        </p>
-        Comments
-        <p ng-repeat = "comment in comments">
-            <img  src="http://graph.facebook.com/{{ comment.userId.id }}/picture?type=small"/>
-            <label>
-                {{ comment.comment }}
-            </label>
-        </p>
-
-
-         <div>
-            <p>
-                <input type = "text" ng-model = "comment"/>
-                <input type="submit" ng-click="postComment()"/>
-            </p>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <img  src="http://graph.facebook.com/{{ currentTweet.creatorId.id }}/picture?type=small"/>
+                <span class="lead text-justify"  style="margin-left: 5px;">
+                    {{ currentTweet.creatorId.name }} .
+                </span>
+                {{ timesInWord(currentTweet.created_at) }}
+                <h2>
+                    {{ currentTweet.tweet }}
+                </h2>
+            </div>
+            <div class="panel-body">
+                <h4>
+                    Comments
+                </h4>
+            </div>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat = "comment in comments">
+                    <img class="img-circle"  src="http://graph.facebook.com/{{ comment.userId.id }}/picture?type=small"/>
+                    <span class="lead text-justify"  style="margin-left: 5px;">
+                        {{ comment.comment }}
+                    </span>
+                    <!-- Split button -->
+                    <div class="btn-group pull-right"  ng-if="(comment.userId._id== user._id)||(currentTweet.creatorId._id == user._id)">
+                        
+                            <span class="caret" class=" dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ">
+                            </span>
+                            
+                        
+                        <ul class="dropdown-menu">
+                            <li ng-click = "deleteComment(comment._id)">
+                                <a href="#">
+                                    Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                  
+                    <p>
+                        {{ timesInWord(comment.created_at) }}
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <div class="col-md-10 col-xs-10">
+                <input class="form-control" type="text" ng-model="comment" my-enter="postComment()"/>
+            </div>
+            <div class="col-md-2 col-xs-2">
+                <p class="btn btn-primary" ng-click="postComment()">
+                    Comment
+                </p>
+            </div>
         </div>
     </body>
 </html>
