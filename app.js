@@ -51,6 +51,7 @@ app.io = io;
 
 app.use('/api/chats', require('./routes/chat')(io));
 app.use('/api/users', users);
+app.use('/api/comments', require('./routes/comments')(io));
 app.use('/api/tweets', require('./routes/tweets')(io));
 app.use('*', index);
 // catch 404 and forward to error handler

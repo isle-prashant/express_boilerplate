@@ -19,7 +19,7 @@ module.exports = function(io) {
                 return res.send("error");
             }
             console.log("UserId" + req.user._id + "creatorId", tweet.creator);
-            if (tweet.creator.toString() != req.user._id.toString()) {
+            if (tweet.creatorId != req.user._id.toString()) {
                 return res.send("You are not Authorised!!");
             }
             return next();
@@ -37,6 +37,22 @@ module.exports = function(io) {
                 return next();
             }
             res.send(tweets);
+        });
+    });
+    /*To get a tweet by its id*/
+    router.get('/:id', ifLoggedIn, function(req, res, next) {
+        Tweet.findOne({
+            _id: req.params.id
+        }).populate({
+            path: 'creatorId',
+            select: 'name id'
+        }).exec(function(err, tweet) {
+            if (err) {
+                return res.send({
+                    error: err
+                });
+            }
+            return res.send(tweet);
         });
     });
     /*to create new posts*/
@@ -62,16 +78,19 @@ module.exports = function(io) {
                 res.send(err);
                 return next();
             }
+            console.log(tweet._id);
+            io.emit('tweetDeleted', tweet._id);
             res.send(tweet);
         });
     });
     /*to be removed later*/
     router.delete('/', function(req, res) {
-        Tweet.remove({}, function(err, users) {
+        Tweet.remove({}, function(err, tweet) {
             if (!users || err) {
                 return res.send(err);
             }
-            return res.send(err);
+            
+            return res.send(tweet);
         });
     });
     /*To update a tweet*/
